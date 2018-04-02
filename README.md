@@ -6,4 +6,4 @@
 php Websocket
 ```
 
-### 访问 <webhost>/html.html 查看效果
+### 访问 http://webhost/html.html 查看效果
