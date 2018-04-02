@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+</head>
+<body>
+  <style type="text/css">
+    *{
+      padding : 0px;
+      margin:0px;
+    }
+    .action{
+      background-color: #DD4F43;
+    }
+  </style>
+  <div>
+    <div id='msg' style="height: 10em;">
+      <p>content</p>
+    </div>
+    <div id='user'>
+
+    </div>
+    <div>
+      <input type="text" name="msg" />
+      <input type="button" name="" value="SEND" onclick="send()" />
+      <input type="button" name="" value="GETUSER" onclick="getuser()" />
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var ws = new WebSocket("ws://web.socket.cn/socket/");
+
+    ws.onopen = function() {
+      ws.send(JSON.stringify({
+        action:'getUserAll',
+      }));
+    };
+
+    ws.onmessage = function(evt) {
+      req( eval('(' + evt.data + ')'));
+    };
+
+    ws.onclose = function(evt) {
+      console.log("WebSocketClosed ! ");
+    };
+
+    ws.onerror = function(evt) {
+      console.log("WebSocketError ! ");
+    };
+
+    var func = {
+      users : function(data){
+        var html = '';
+        for(var i in data){
+          html+=`<p onclick="select(this)">${data[i]}</p>`;
+        }
+        document.querySelector('#user').innerHTML = html;
+      },
+      msg : function(data){
+        document.querySelector('#msg').innerHTML += `<p>${data}</p>`;
+      }
+    };
+
+    function select(obj){
+      var users = document.querySelectorAll('#user>p');
+      for(var i in users){
+        if ( !isNaN(i) )
+          users[i].setAttribute('class','');
+      }
+      obj.setAttribute('class','action');
+    }
+
+    function req(data){
+      for(var i in data){
+        func[i](data[i]);
+      }
+    }
+
+    function send(){
+      var msg = document.querySelector('[name="msg"]').value;
+      document.querySelector('[name="msg"]').value = '';
+      ws.send(JSON.stringify({
+        action:'toUserMsg',
+        id:document.querySelector('[class="action"]').innerHTML,
+        msg:msg
+      }));
+    }
+
+    function getuser() {
+      ws.send(JSON.stringify({
+        action:'getUserAll',
+      }));
+    }
+
+  </script>
+</body>
+</html>
